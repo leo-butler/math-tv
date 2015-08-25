@@ -10,13 +10,18 @@
 var tv = {
 
     // configuration variables
-    time_to_show_slide: 3000,
+    time_to_show_slide: 10000,
     iterations_before_reinit: 100,
-    news_urls: new Array( "http://localhost:8080/news-0.html"  , "http://localhost:8080/news-1.html" ),
     // end of configuration variables
 
     news_iframes: [],
+    tv_urls: [],
     slideshow_iframes: [],
+    create_style_sheet: function (s) {
+	var sheet = document.createElement('style');
+	sheet.innerHTML = s;
+	return sheet;
+    },
     default_style: function (e) { e.style.display = "none"; },
     show_style: function (e) {
 	e.style.display = "block";
@@ -28,40 +33,15 @@ var tv = {
 	ifr.href = url;
 	return ifr;
 	},
-    get_news_list_iframe: function (name) {
-	var ifr_list;
-	if (typeof(name) == "string") {
-	    ifr_list = document.getElementsByName(name)[0].contentDocument.getElementsByName("iframe");
-	} else {
-	    ifr_list = name.contentDocument.getElementsByName("iframe");
-	}
-	return ifr_list[0];
+    get_tv_list: function (id) {
+	var t = document.getElementById(id);
+	return t.getElementsByTagName('a');
     },
-    get_news_list_items: function (ifr) {
-	return ifr.contentDocument.getElementsByClassName("news-latest-container")[0].getElementsByTagName("li");
-	},
-    get_anchors: function (a) { 
-	var b=[]; 
-	for (var x=0; x<a.length; x++) 
-	    b[x] = a[x].getElementsByTagName("a")[0].href; 
+    get_urls: function (a) {
+	var b=[];
+	for (var x=0; x<a.length; x++)
+	    b[x] = a[x].href;
 	return(b);
-    },
-    create_news_iframe: function (url) {
-	var ifr = document.createElement("iframe");
-	tv.default_style(ifr);
-	ifr.name = url;
-	ifr.src = url;
-	ifr.onload = function () {
-	    ifr.news_list_iframe = tv.get_news_list_iframe(ifr);
-	    ifr.news_items = tv.get_news_list_items(ifr.news_list_iframe);
-	    ifr.news_items_urls = tv.get_anchors(ifr.news_items);
-	    for (var u=0; u<ifr.news_items_urls.length; u++) {
-		var url = ifr.news_items_urls[u];
-		tv.create_slideshow_iframe(url);
-	    };
-	};
-	document.body.appendChild(ifr);
-	return ifr;
     },
     create_slideshow_iframe: function (url) {
 	var ifr = document.createElement("iframe");
@@ -69,6 +49,17 @@ var tv = {
 	ifr.name = url;
 	ifr.src = url;
 	ifr.className = "slideshow";
+	ifr.onload = function () {
+	    var imgs = ifr.contentDocument.getElementsByName('shrinkToFit');
+	    var head = ifr.contentDocument.getElementsByTagName("head")[0];
+	    if (imgs!==null) {
+		head.appendChild(tv.create_style_sheet(".shrinkToFit {\n\
+						    display: block;\n\
+						    margin-left: auto;\n\
+						    margin-right: auto;\n\
+						   };"));
+	    }
+	    };
 	document.body.appendChild(ifr);
 	return ifr;
     },
@@ -101,12 +92,51 @@ var tv = {
     mapcar: function(f,a) {
 	a.map(f);
     },
+    insert_this_script: function (head) {
+	// debugging GM scripts is lousy, so we insert this script as a
+	// regular JS script and run that
+	if(document.getElementById('tv.user.js')==null) {
+	    // run the script as an ordinary JS script in the document scope
+	    var e = document.createElement("script");
+	    e.src = 'https://www.ndsu.edu/pubweb/~lebutler/tv.user.js';
+	    e.type="text/javascript";
+	    e.id = "tv.user.js";
+	    head.appendChild(e);
+	}},
+    setup_style_sheet: function (head) {
+	head.appendChild(tv.create_style_sheet("html, body { margin: 0; padding: 0; height: 100%; }\n\
+					       iframe.slideshow {\n\
+					       position: absolute;\n\
+					       top: 0; left: 0; width: 100%; height: 100%;\n\
+					       border: none; padding-top: 32px;\n\
+					       box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;\n\
+					      }"));
+    },
+    setup_page_elements: function () {
+	// zero out current page elements
+	var children = document.body.children;
+	for (var i=0; i<children.length; i++) {
+	    var child = children[i];
+	    child.style.display = "none";
+	}
+	// set defaults for current page
+	document.body.style.backgroundColor = "white";
+	document.body.style.color = "black";
+    },
     init: function () {
-	alert("fired");
-	tv.news_iframes = tv.mapcar(tv.create_news_iframe, tv.news_urls);
+	var head = document.getElementsByTagName("head")[0];
+	tv.insert_this_script(head);
+	tv.setup_style_sheet(head);
+	tv.setup_page_elements();
+
+	// get urls and create slideshow
+	tv.tv_urls = tv.get_urls(tv.get_tv_list('main'));
+	tv.mapcar(tv.create_slideshow_iframe,tv.tv_urls);
 	tv.slideshow_iframes = tv.get_slideshow_iframes();
 	tv.do_slideshow();
     }
 };
 
-tv.init();
+
+// GO!
+document.body.onload = tv.init;
