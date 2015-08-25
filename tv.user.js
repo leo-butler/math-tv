@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         tv Userscript
 // @description  Fetching news elements and slideShowing them.
-// @include      http://localhost:8080/demo.html
+// @include      https://www.ndsu.edu/math/tv/
+// @version     1
 // @grant        none
 // ==/UserScript==
 
