@@ -17,6 +17,8 @@ var tv = {
     news_iframes: [],
     tv_urls: [],
     slideshow_iframes: [],
+    timeout: null,
+    debug: false,
     create_style_sheet: function (s) {
 	var sheet = document.createElement('style');
 	sheet.innerHTML = s;
@@ -85,7 +87,7 @@ var tv = {
 		window.location.reload();
 		tv.init();
 	    }
-	    setTimeout(slideshow, tv.time_to_show_slide);
+	    tv.timeout = setTimeout(slideshow, tv.time_to_show_slide);
 	};
 	slideshow();
     },
@@ -123,9 +125,14 @@ var tv = {
 	document.body.style.backgroundColor = "white";
 	document.body.style.color = "black";
     },
+    clear_timeout: function () {
+	if(tv.timeout !== null) clearTimeout(tv.timeout);
+    },
     init: function () {
+	tv.clear_timeout();
+	
 	var head = document.getElementsByTagName("head")[0];
-	tv.insert_this_script(head);
+	if(tv.debug) tv.insert_this_script(head);
 	tv.setup_style_sheet(head);
 	tv.setup_page_elements();
 
