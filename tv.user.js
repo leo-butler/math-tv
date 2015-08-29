@@ -15,9 +15,9 @@ var tv = {
     iterations_before_reinit: 100,
     // end of configuration variables
 
-    news_iframes: [],
+    news_elements: [],
     tv_urls: [],
-    slideshow_iframes: [],
+    slideshow_elements: [],
     timeout: null,
     debug: false,
     create_style_sheet: function (s) {
@@ -46,6 +46,17 @@ var tv = {
 	    b[x] = a[x].href;
 	return(b);
     },
+    create_slideshow_img: function (url) {
+	var div = document.createElement("div");
+	var img = document.createElement ("img");
+	tv.default_style(div);
+	div.appendChild(img);
+	div.name = url;
+	div.className = "slideshow";
+	img.src = url;
+	document.body.appendChild(div);
+	return div;
+	},
     create_slideshow_iframe: function (url) {
 	var ifr = document.createElement("iframe");
 	tv.default_style(ifr);
@@ -53,20 +64,26 @@ var tv = {
 	ifr.src = url;
 	ifr.className = "slideshow";
 	ifr.onload = function () {
-	    var imgs = ifr.contentDocument.getElementsByName('shrinkToFit');
-	    var head = ifr.contentDocument.getElementsByTagName("head")[0];
-	    if (imgs!==null) {
-		head.appendChild(tv.create_style_sheet(".shrinkToFit {\n\
-						    display: block;\n\
-						    margin-left: auto;\n\
-						    margin-right: auto;\n\
-						   };"));
-	    }
+	    var head = ifr.contentDocument.head;
+	    head.appendChild(tv.create_style_sheet(".shrinkToFit {\n\
+						   display: block;\n\
+						   margin-left: auto;\n\
+						   margin-right: auto;\n\
+						  };"));
 	    };
 	document.body.appendChild(ifr);
 	return ifr;
     },
-    get_slideshow_iframes: function () {
+    create_slideshow_element: function (url) {
+	// typo3 serves up html files using a directory-like url ending in /
+	var ishtml = url.substr(-1) == "/";
+	if (ishtml) {
+	    return tv.create_slideshow_iframe(url);
+	} else {
+	    return tv.create_slideshow_img(url);
+	}
+    },
+    get_slideshow_elements: function () {
 	return document.getElementsByClassName("slideshow");
     },
     do_slideshow: function () {
@@ -74,18 +91,18 @@ var tv = {
 	var slideshow = function () {
 	    n++;
 	    if (n<tv.iterations_before_reinit) {
-		if (tv.slideshow_iframes.length>0) {
-		    ifr = tv.slideshow_iframes[s];
+		if (tv.slideshow_elements.length>0) {
+		    ifr = tv.slideshow_elements[s];
 		    tv.default_style(ifr);
-		    s = (s+1) % tv.slideshow_iframes.length;
-		    ifr = tv.slideshow_iframes[s];
+		    s = (s+1) % tv.slideshow_elements.length;
+		    ifr = tv.slideshow_elements[s];
 		    tv.show_style(ifr);
 		} else {
-		    tv.slideshow_iframes = tv.get_slideshow_iframes();
+		    tv.slideshow_elements = tv.get_slideshow_elements();
 		    n--;
 		}
 	    } else {
-		window.location.reload();
+		window.location.reload(true);
 		tv.init();
 	    }
 	    tv.timeout = setTimeout(slideshow, tv.time_to_show_slide);
@@ -108,12 +125,18 @@ var tv = {
 	}},
     setup_style_sheet: function (head) {
 	head.appendChild(tv.create_style_sheet("html, body { margin: 0; padding: 0; height: 100%; }\n\
-					       iframe.slideshow {\n\
+					       .slideshow {\n\
 					       position: absolute;\n\
 					       top: 0; left: 0; width: 100%; height: 100%;\n\
 					       border: none; padding-top: 32px;\n\
 					       box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;\n\
-					      }"));
+					      }\n\
+					       .slideshow img {\n\
+						   display: block;\n\
+						   margin-left: auto;\n\
+						   margin-right: auto;\n\
+					           height: 100%;\n\
+						  };"));
     },
     setup_page_elements: function () {
 	// zero out current page elements
@@ -132,15 +155,15 @@ var tv = {
     init: function () {
 	tv.clear_timeout();
 	
-	var head = document.getElementsByTagName("head")[0];
+	var head = document.head;
 	if(tv.debug) tv.insert_this_script(head);
 	tv.setup_style_sheet(head);
 	tv.setup_page_elements();
 
 	// get urls and create slideshow
 	tv.tv_urls = tv.get_urls(tv.get_tv_list('main'));
-	tv.mapcar(tv.create_slideshow_iframe,tv.tv_urls);
-	tv.slideshow_iframes = tv.get_slideshow_iframes();
+	tv.mapcar(tv.create_slideshow_element,tv.tv_urls);
+	tv.slideshow_elements = tv.get_slideshow_elements();
 	tv.do_slideshow();
     }
 };
