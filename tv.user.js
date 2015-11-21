@@ -2,7 +2,7 @@
 // @name         tv Userscript
 // @description  Fetching news elements and slideShowing them.
 // @include      https://www.ndsu.edu/math/tv/
-// @version      1.2
+// @version      1.3
 // @downloadURL  https://raw.githubusercontent.com/leo-butler/math-tv/master/tv.user.js
 // @grant        none
 // ==/UserScript==
@@ -20,6 +20,12 @@ var tv = {
     slideshow_elements: [],
     timeout: null,
     debug: false,
+    add_mathjax: function (doc) {
+	var script = doc.createElement('script');
+	script.type = 'text/javascript';
+	script.src = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML-full';
+	return script;
+    },
     create_style_sheet: function (s) {
 	var sheet = document.createElement('style');
 	sheet.innerHTML = s;
@@ -70,6 +76,7 @@ var tv = {
 						   margin-left: auto;\n\
 						   margin-right: auto;\n\
 						  };"));
+	    head.appendChild(tv.add_mathjax(document));
 	    };
 	document.body.appendChild(ifr);
 	return ifr;
