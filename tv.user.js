@@ -77,6 +77,7 @@ var tv = {
 						   margin-right: auto;\n\
 						  };"));
 	    head.appendChild(tv.add_mathjax(document));
+	    tv.censor_iframe(ifr);
 	    };
 	document.body.appendChild(ifr);
 	return ifr;
@@ -90,6 +91,16 @@ var tv = {
 	    return tv.create_slideshow_img(url);
 	}
     },
+    censor_iframe: function (ifr) {
+	var now = new Date(Date.now());
+	var fudge = 7*24*3600*1000; // 7 days in milliseconds
+	if (ifr.name && ifr.name.substr(0,38) == "https://www.ndsu.edu/math/news/detail/" ) {
+	    var until = new Date( ifr.contentDocument.getElementsByClassName('news-list-date')[0].innerHTML );
+	    var outofdate = until - now + fudge < 0;
+	    if (outofdate) {
+		ifr.className = "out-of-date";
+	    }
+	}},
     get_slideshow_elements: function () {
 	return document.getElementsByClassName("slideshow");
     },
