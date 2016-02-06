@@ -2,7 +2,7 @@
 // @name         tv Userscript
 // @description  Fetching news elements and slideShowing them.
 // @include      https://www.ndsu.edu/math/tv/
-// @version      1.4
+// @version      1.5
 // @downloadURL  https://raw.githubusercontent.com/leo-butler/math-tv/master/tv.user.js
 // @grant        none
 // ==/UserScript==
@@ -99,6 +99,7 @@ var tv = {
 	    var outofdate = until - now + fudge < 0;
 	    if (outofdate) {
 		ifr.className = "out-of-date";
+		document.body.removeChild(ifr);
 	    }
 	}},
     get_slideshow_elements: function () {
