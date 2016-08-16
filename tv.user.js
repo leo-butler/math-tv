@@ -121,12 +121,15 @@ var tv = {
 		    n--;
 		}
 	    } else {
-		window.location.reload(true);
-		tv.init();
+		tv.reload();
 	    }
 	    tv.timeout = setTimeout(slideshow, tv.time_to_show_slide);
 	};
 	slideshow();
+    },
+    reload: function () {
+	window.location.reload(true);
+	tv.init();
     },
     mapcar: function(f,a) {
 	a.map(f);
@@ -171,20 +174,25 @@ var tv = {
     clear_timeout: function () {
 	if(tv.timeout !== null) clearTimeout(tv.timeout);
     },
+    check_for_error_page: function () {
+	if(document.getElementById('errorPageContainer') !== null) {
+	    tv.timeout = setTimeout(tv.reload, tv.time_to_show_slide);
+	    return true;
+	} else { return false; }},
     init: function () {
 	tv.clear_timeout();
-	
-	var head = document.head;
-	if(tv.debug) tv.insert_this_script(head);
-	tv.setup_style_sheet(head);
-	tv.setup_page_elements();
+	if (!tv.check_for_error_page()) {
+	    var head = document.head;
+	    if(tv.debug) tv.insert_this_script(head);
+	    tv.setup_style_sheet(head);
+	    tv.setup_page_elements();
 
-	// get urls and create slideshow
-	tv.tv_urls = tv.get_urls(tv.get_tv_list('main'));
-	tv.mapcar(tv.create_slideshow_element,tv.tv_urls);
-	tv.slideshow_elements = tv.get_slideshow_elements();
-	tv.do_slideshow();
-    }
+	    // get urls and create slideshow
+	    tv.tv_urls = tv.get_urls(tv.get_tv_list('main'));
+	    tv.mapcar(tv.create_slideshow_element,tv.tv_urls);
+	    tv.slideshow_elements = tv.get_slideshow_elements();
+	    tv.do_slideshow();
+	}}
 };
 
 
