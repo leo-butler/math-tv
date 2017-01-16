@@ -189,10 +189,8 @@ var tv = {
 	if(tv.timeout !== null) clearTimeout(tv.timeout);
     },
     check_for_error_page: function () {
-	if(document.getElementById('errorPageContainer') !== null) {
-	    tv.timeout = setTimeout(tv.maybe_reload, tv.time_to_show_slide);
-	    return true;
-	} else { return false; }},
+	return false;
+    },
     init: function () {
 	tv.clear_timeout();
 	if (!tv.check_for_error_page()) {
