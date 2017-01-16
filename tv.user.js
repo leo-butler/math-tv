@@ -62,16 +62,14 @@ var tv = {
 	div.appendChild(img);
 	div.name = url;
 	div.className = "slideshow";
+	img.onload = function () { document.body.appendChild(div); };
 	img.src = url;
-	document.body.appendChild(div);
 	return div;
-	},
+    },
     create_slideshow_iframe: function (url) {
 	var ifr = document.createElement("iframe");
 	tv.default_style(ifr);
 	ifr.name = url;
-	ifr.src = url;
-	ifr.className = "slideshow";
 	ifr.onload = function () {
 	    var head = ifr.contentDocument.head;
 	    head.appendChild(tv.create_style_sheet(".shrinkToFit {\n\
