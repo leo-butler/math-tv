@@ -2,7 +2,7 @@
 // @name         tv Userscript
 // @description  Fetching news elements and slideShowing them.
 // @include      https://www.ndsu.edu/math/tv/
-// @version      1.7
+// @version      1.8
 // @downloadURL  https://raw.githubusercontent.com/leo-butler/math-tv/master/tv.user.js
 // @grant        none
 // ==/UserScript==
