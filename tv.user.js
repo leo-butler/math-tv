@@ -41,7 +41,7 @@ var tv = {
 	ifr.name = url;
 	ifr.href = url;
 	return ifr;
-	},
+    },
     get_tv_list: function (id) {
 	var t = document.getElementById(id);
 	return t.getElementsByTagName('a');
