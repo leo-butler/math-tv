@@ -78,8 +78,10 @@ var tv = {
 						   margin-right: auto;\n\
 						  };"));
 	    head.appendChild(tv.add_mathjax(document));
+	    ifr.className = "slideshow";
 	    tv.censor_iframe(ifr);
-	    };
+	};
+	ifr.src = url;
 	document.body.appendChild(ifr);
 	return ifr;
     },
