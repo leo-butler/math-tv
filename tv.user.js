@@ -21,6 +21,8 @@ var tv = {
     slideshow_elements: [],
     timeout: null,
     debug: false,
+    url: "https://www.ndsu.edu/math/tv/",
+    offline_wait_time: 3000,
     add_mathjax: function (doc) {
 	var script = doc.createElement('script');
 	script.type = 'text/javascript';
