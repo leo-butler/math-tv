@@ -7,12 +7,13 @@
 // @grant        none
 // ==/UserScript==
 
+var reload = new Event('reload');
 
 var tv = {
 
     // configuration variables
     time_to_show_slide: 10000,
-    iterations_before_reinit: 100,
+    iterations_before_reinit: 6, //100,
     // end of configuration variables
 
     news_elements: [],
@@ -121,15 +122,26 @@ var tv = {
 		    n--;
 		}
 	    } else {
-		tv.reload();
+		tv.maybe_reload();
+		n = 0;
 	    }
+	    tv.clear_timeout(tv.timeout);
 	    tv.timeout = setTimeout(slideshow, tv.time_to_show_slide);
 	};
 	slideshow();
     },
+    maybe_reload: function () {
+	var xhr = new XMLHttpRequest();
+	var offline_timer = setTimeout(xhr.abort, tv.offline_wait_time);
+	xhr.onload = function () {
+	    clearTimeout(offline_timer);
+	    document.dispatchEvent(reload);
+	};
+	xhr.open("HEAD",tv.url,true);
+	xhr.send();
+    },
     reload: function () {
 	window.location.reload(true);
-	tv.init();
     },
     mapcar: function(f,a) {
 	a.map(f);
@@ -176,7 +188,7 @@ var tv = {
     },
     check_for_error_page: function () {
 	if(document.getElementById('errorPageContainer') !== null) {
-	    tv.timeout = setTimeout(tv.reload, tv.time_to_show_slide);
+	    tv.timeout = setTimeout(tv.maybe_reload, tv.time_to_show_slide);
 	    return true;
 	} else { return false; }},
     init: function () {
@@ -195,6 +207,8 @@ var tv = {
 	}}
 };
 
+document.addEventListener('reload', tv.reload);
+window.document.onerror = function () { };
 
 // GO!
 document.body.onload = tv.init;
