@@ -13,7 +13,7 @@ var tv = {
 
     // configuration variables
     time_to_show_slide: 10000,
-    iterations_before_reinit: 6, //100,
+    iterations_before_reinit: 100,
     // end of configuration variables
 
     news_elements: [],
