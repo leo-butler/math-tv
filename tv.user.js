@@ -2,7 +2,7 @@
 // @name         tv Userscript
 // @description  Fetching news elements and slideShowing them.
 // @include      https://www.ndsu.edu/math/tv/
-// @version      1.9
+// @version      1.10
 // @downloadURL  https://raw.githubusercontent.com/leo-butler/math-tv/master/tv.user.js
 // @grant        none
 // ==/UserScript==
@@ -98,7 +98,7 @@ var tv = {
 	var now = new Date(Date.now());
 	var fudge = 7*24*3600*1000; // 7 days in milliseconds
 	if (ifr.name && ifr.name.substr(0,38) == "https://www.ndsu.edu/math/news/detail/" ) {
-	    var t = ifr.getElementsByTagName('time')[0];
+	    var t = ifr.contentDocument.getElementsByTagName('time')[0];
 	    var until = new Date( t.dateTime );
 	    var outofdate = until - now + fudge < 0;
 	    if (outofdate) {
