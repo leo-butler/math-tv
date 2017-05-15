@@ -136,7 +136,7 @@ var tv = {
     },
     maybe_reload: function () {
 	var xhr = new XMLHttpRequest();
-	var offline_timer = setTimeout(xhr.abort, tv.offline_wait_time);
+	var offline_timer = setTimeout(function () {xhr.abort(); online.isnt();}, tv.offline_wait_time);
 	xhr.onload = function () {
 	    clearTimeout(offline_timer);
 	    document.dispatchEvent(reload);
@@ -146,6 +146,7 @@ var tv = {
     },
     reload: function () {
 	window.location.reload(true);
+	online.is();
     },
     mapcar: function(f,a) {
 	a.map(f);
@@ -166,7 +167,7 @@ var tv = {
 					       .slideshow {\n\
 					       position: absolute;\n\
 					       top: 0; left: 0; width: 100%; height: 100%;\n\
-					       border: none; padding-top: 32px;\n\
+					       border: none; padding-top: 0px;\n\
 					       box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;\n\
 					      }\n\
 					       .slideshow img {\n\
@@ -200,6 +201,7 @@ var tv = {
 	    if(tv.debug) tv.insert_this_script(head);
 	    tv.setup_style_sheet(head);
 	    tv.setup_page_elements();
+	    online.online_init();
 
 	    // get urls and create slideshow
 	    tv.tv_urls = tv.get_urls(tv.get_tv_list('main'));
@@ -208,6 +210,42 @@ var tv = {
 	    tv.do_slideshow();
 	}}
 };
+
+var online = {
+    css: ".cssbox { \n\
+   display: inline-block; \n\
+   background: red; \n\
+   width: 10px; \n\
+   height: 100%; \n\
+   float: left; \n\
+   margin: 0px; \n\
+   color: white; \n\
+   position: absolute; \n\
+   top: 0px; \n\
+   left: 0px; \n\
+   z-index: 10; \n\
+}\n\
+#online { \n\
+   background: green; \n\
+}\n\
+#offline { \n\
+   background: red; \n\
+}",
+    online_box: null,
+    online_init: function () {
+	var b = document.createElement("div");
+	document.head.appendChild(tv.create_style_sheet(online.css));
+	b.className = "cssbox";
+	b.id = "online";
+	document.body.appendChild(b);
+	return online.online_box = b;
+    },
+    is: function () {
+	online.online_box.id = "online";
+    },
+    isnt: function () {
+	online.online_box.id = "offline";
+    }};
 
 document.addEventListener('reload', tv.reload);
 window.document.onerror = function () { };
